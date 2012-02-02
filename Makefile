@@ -9,3 +9,4 @@ png-text-append: png-text-append.o
 
 png-text-dump: png-text-dump.o
 	$(CC) $(LIBS) -o$@ $^
+
