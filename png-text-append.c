@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern unsigned long crc(char*, int);
+
 #define PNG_SIG_SIZE 8
 const char* png_sig = "\211\120\116\107\015\012\032\012";
 
@@ -26,16 +28,20 @@ static void
 inject_text_chunk(char *key, char *content, FILE *stream)
 {
   uint32_t length = strlen(key) + 1 + strlen(content) + 1;
-  endian_swap(&length);
-  fwrite(&length, 1, 4, stream);
-  fwrite("tEXT", 1, 4, stream);
-  fwrite(key, 1, strlen(key), stream);
-  fputc('\0', stream);
-  fwrite(content, 1, strlen(content), stream);
-  fputc('\0', stream);
+  char *buffer = malloc(length + 4);
   
-  /* FIXME calculate and write CRC sum */
-  fwrite("\0\0\0\0", 1, 4, stream);
+  sprintf(buffer, "tEXT%s", key);
+  sprintf(buffer + 4 + strlen(key) + 1, "%s", content);
+
+  uint32_t length_out = length;
+  endian_swap(&length_out);
+  fwrite(&length_out, 1, 4, stream);
+  fwrite(buffer, 1, length + 4, stream);
+  
+  /* calculate and write CRC sum */
+  uint32_t crc_out = crc(buffer, length);
+  endian_swap(&crc_out);
+  fwrite(&crc_out, 1, 4, stream);
 }
 
 int
