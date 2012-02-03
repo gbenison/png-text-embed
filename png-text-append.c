@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define PNG_SIG_SIZE 8
 const char* png_sig = "\211\120\116\107\015\012\032\012";
@@ -20,6 +22,22 @@ endian_swap(uint32_t* x)
     }
 }
 
+static void
+inject_text_chunk(char *key, char *content, FILE *stream)
+{
+  uint32_t length = strlen(key) + 1 + strlen(content) + 1;
+  endian_swap(&length);
+  fwrite(&length, 1, 4, stream);
+  fwrite("tEXT", 1, 4, stream);
+  fwrite(key, 1, strlen(key), stream);
+  fputc('\0', stream);
+  fwrite(content, 1, strlen(content), stream);
+  fputc('\0', stream);
+  
+  /* FIXME calculate and write CRC sum */
+  fwrite("\0\0\0\0", 1, 4, stream);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -30,13 +48,21 @@ main(int argc, char *argv[])
   }
 
   FILE *infile = stdin;
+  FILE *outfile = stdout;
+
+  int buf_size = 1024;
+  char *buffer = malloc(buf_size);
+
   if (argc > 1) infile = fopen(argv[1], "r");
   assert(infile != NULL);
 
   char sig[PNG_SIG_SIZE];
   assert (fread(sig, 1, PNG_SIG_SIZE, infile) == PNG_SIG_SIZE);
-
   assert (strncmp(png_sig, sig, PNG_SIG_SIZE) == 0);
+
+  fwrite(png_sig, 1, PNG_SIG_SIZE, outfile);
+
+  int did_text_chunk = 0;
 
   while(1) {
     uint32_t length;
@@ -49,9 +75,31 @@ main(int argc, char *argv[])
     endian_swap(&length);
     fread(name, 1, 4, infile);
 
-    fseek(infile, length, SEEK_CUR);
+    /* make sure buffer is large enough to hold contents */
+    while (buf_size < length) {
+      buf_size *= 2;
+      buffer = realloc(buffer, buf_size);
+    }
+
+    fread(buffer, length, 1, infile);
     fread(&crc, 1, 4, infile);
     endian_swap(&crc);
+
+    uint32_t length_out = length;
+    endian_swap(&length_out);
+    uint32_t crc_out = crc;
+    endian_swap(&crc_out);
+
+    /* echo chunks to output */
+    fwrite(&length_out, 1, 4, outfile);
+    fwrite(name, 1, 4, outfile);
+    fwrite(buffer, 1, length, outfile);
+    fwrite(&crc_out, 1, 4, outfile);
+
+    if (!did_text_chunk) {
+      inject_text_chunk("message","testing text chunk injection",outfile);
+      did_text_chunk = 1;
+    }
 
   }
 
