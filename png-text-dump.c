@@ -22,7 +22,7 @@ main(int argc, char *argv[])
   png_infop end_info_ptr = png_create_info_struct(read_ptr);
 
   png_init_io(read_ptr, infile);
-  png_read_info(read_ptr, read_info_ptr);
+  png_read_png(read_ptr, read_info_ptr, 0, NULL);
   
   png_textp text_ptr;
   int num_text;
