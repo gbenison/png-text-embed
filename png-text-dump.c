@@ -33,7 +33,7 @@ main(int argc, char *argv[])
   for (i = 0; i < num_text; ++i)
     {
       printf("==== text chunk %d ====\n", i + 1);
-      printf("%s -> %s\n\n", text_ptr->key, text_ptr->text);
+      printf("%s -> %s\n\n", text_ptr[i].key, text_ptr[i].text);
     }
 
   return 0;
