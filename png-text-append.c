@@ -47,6 +47,13 @@ inject_text_chunk(char *key, char *content, FILE *stream)
 int
 main(int argc, char *argv[])
 {
+  if (argc < 3) {
+    fprintf(stderr, "Usage: %s <key> <content>\n\n", argv[0]);
+    fprintf(stderr, "Reads a PNG image from standard input;\n");
+    fprintf(stderr, "injects a text chunk (key=content);\n");
+    fprintf(stderr, "copies all other chunks unchanged to standard output.\n");
+  }
+
   /* is this a little-endian machine? */
   {
     uint32_t endian_test = 1;
@@ -58,9 +65,6 @@ main(int argc, char *argv[])
 
   int buf_size = 1024;
   char *buffer = malloc(buf_size);
-
-  if (argc > 1) infile = fopen(argv[1], "r");
-  assert(infile != NULL);
 
   char sig[PNG_SIG_SIZE];
   assert (fread(sig, 1, PNG_SIG_SIZE, infile) == PNG_SIG_SIZE);
@@ -100,7 +104,7 @@ main(int argc, char *argv[])
     if ((!strcmp(name, "IDAT")) || (!strcmp(name, "IEND")))
       {
 	if (!did_text_chunk) {
-	  inject_text_chunk("message","testing text chunk injection",outfile);
+	  inject_text_chunk(argv[1],argv[2],outfile);
 	  did_text_chunk = 1;
 	}
       }
