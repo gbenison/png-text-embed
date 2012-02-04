@@ -3,10 +3,9 @@
      http://stackoverflow.com/questions/8842387/php-add-itxt-comment-to-a-png-image -->
 <?php
 
-    addTextToPngFile("studio-1.png","studio-2.png","Watermark","Hi this 
-is a 
-TEXT 
-test");
+    addTextToPngFile("studio-1.png","studio-2.png",
+                     "message",
+		     "testing text chunk injection");
 
     function addTextToPngFile($pngSrc,$pngTarget,$key,$text) {
         $chunk = phpTextChunk($key,$text);

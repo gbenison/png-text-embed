@@ -49,7 +49,7 @@ http://www.w3.org/TR/PNG/#D-CRCAppendix
    }
    
    /* Return the CRC of the bytes buf[0..len-1]. */
-   unsigned long crc(unsigned char *buf, int len)
+   unsigned long crc_calculate(unsigned char *buf, int len)
    {
      return update_crc(0xffffffffL, buf, len) ^ 0xffffffffL;
    }

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern unsigned long crc(char*, int);
+extern unsigned long crc_calculate(char*, int);
 
 #define PNG_SIG_SIZE 8
 const char* png_sig = "\211\120\116\107\015\012\032\012";
@@ -27,10 +27,10 @@ endian_swap(uint32_t* x)
 static void
 inject_text_chunk(char *key, char *content, FILE *stream)
 {
-  uint32_t length = strlen(key) + 1 + strlen(content) + 1;
-  char *buffer = malloc(length + 4);
+  uint32_t length = strlen(key) + 1 + strlen(content);
+  char *buffer = malloc(length + 4 + 1);
   
-  sprintf(buffer, "tEXT%s", key);
+  sprintf(buffer, "tEXt%s", key);
   sprintf(buffer + 4 + strlen(key) + 1, "%s", content);
 
   uint32_t length_out = length;
@@ -39,7 +39,7 @@ inject_text_chunk(char *key, char *content, FILE *stream)
   fwrite(buffer, 1, length + 4, stream);
   
   /* calculate and write CRC sum */
-  uint32_t crc_out = crc(buffer, length);
+  uint32_t crc_out = crc_calculate(buffer, length + 4);
   endian_swap(&crc_out);
   fwrite(&crc_out, 1, 4, stream);
 }
