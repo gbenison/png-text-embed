@@ -96,16 +96,20 @@ main(int argc, char *argv[])
     uint32_t crc_out = crc;
     endian_swap(&crc_out);
 
+    /* text is injected just before first IDAT or IEND chunk */
+    if ((!strcmp(name, "IDAT")) || (!strcmp(name, "IEND")))
+      {
+	if (!did_text_chunk) {
+	  inject_text_chunk("message","testing text chunk injection",outfile);
+	  did_text_chunk = 1;
+	}
+      }
+
     /* echo chunks to output */
     fwrite(&length_out, 1, 4, outfile);
     fwrite(name, 1, 4, outfile);
     fwrite(buffer, 1, length, outfile);
     fwrite(&crc_out, 1, 4, outfile);
-
-    if (!did_text_chunk) {
-      inject_text_chunk("message","testing text chunk injection",outfile);
-      did_text_chunk = 1;
-    }
 
   }
 
