@@ -32,8 +32,8 @@ main(int argc, char *argv[])
   int i;
   for (i = 0; i < num_text; ++i)
     {
-      printf("==== text chunk %d ====\n", i + 1);
-      printf("%s -> %s\n\n", text_ptr[i].key, text_ptr[i].text);
+      printf("==== text chunk %d: \"%s\" ====\n", i + 1, text_ptr[i].key);
+      printf("%s\n\n", text_ptr[i].text);
     }
 
   return 0;

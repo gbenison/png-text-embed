@@ -1,1 +1,11 @@
+The utility 'png-text-append' inserts "text chunks" into PNG files.
+*Note: this does _not_ mean 'drawing text on the image' in any way;
+the appearance of the image will be unchanged.  This means inserting
+an ancillary text chunk into the PNG stream, which can be used for 
+example, to hold copyright information.
+
+The utility 'png-text-dump' displays all text chunks present in a PNG 
+file.
+
+References:
 http://stackoverflow.com/questions/9036152/insert-a-text-chunk-into-a-png-image
