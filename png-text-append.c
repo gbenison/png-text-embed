@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 		endian_swap(&crc_out);
 
 		/* text is injected just before first IDAT or IEND chunk */
-		if ((!strcmp(name, "IDAT")) || (!strcmp(name, "IEND"))) {
+		if ((!strncmp(name, "IDAT", 4)) || (!strncmp(name, "IEND", 4))) {
 			if (!did_text_chunk) {
 				inject_text_chunk(argv[1], argv[2], outfile);
 				did_text_chunk = 1;
